@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Telco Churn</title>
+<style>body{font-family:system-ui;max-width:600px;margin:40px auto;padding:0 18px}label{display:block;margin:14px 0}input,select,button{padding:8px;width:100%;box-sizing:border-box}button{background:#175cd3;color:white;border:0;border-radius:6px;cursor:pointer}pre{white-space:pre-wrap;background:#f2f4f7;padding:16px}</style></head>
+<body><h1>Telco Churn Predictor</h1><p>Demostración con datos sintéticos; no utilizar para decisiones reales.</p>
+<form id="f">
+<label>Meses como cliente <input name="tenure" type="number" min="0" max="100" value="5" required></label>
+<label>Cargo mensual <input name="MonthlyCharges" type="number" min="0" step="0.01" value="85.5" required></label>
+<label>Cargo acumulado <input name="TotalCharges" type="number" min="0" step="0.01" value="427.5" required></label>
+<label>Contrato <select name="Contract"><option>Month-to-month</option><option>One year</option><option>Two year</option></select></label>
+<label>Internet <select name="InternetService"><option>Fiber optic</option><option>DSL</option><option>No</option></select></label>
+<button>Predecir</button></form><h2>Resultado</h2><pre id="out">Sin predicción</pre>
+<script>
+document.querySelector('#f').addEventListener('submit',async e=>{
+ e.preventDefault(); const o=Object.fromEntries(new FormData(e.target));
+ for(const k of ['tenure','MonthlyCharges','TotalCharges']) o[k]=Number(o[k]);
+ const r=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)});
+ document.querySelector('#out').textContent=JSON.stringify(await r.json(),null,2);
+});
+</script></body></html>
