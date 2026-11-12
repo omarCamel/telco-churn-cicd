@@ -14,6 +14,23 @@ python -m uvicorn app.main:app --reload
 
 Abrir `http://127.0.0.1:8000/`, `/docs` y `/health`.
 
+## 1.1. Entrenar y registrar el modelo con MLflow
+
+```bat
+python scripts/train.py
+mlflow ui
+```
+
+Luego abrir `http://127.0.0.1:5000` para visualizar experimentos, parámetros y métricas.
+
+### Estructura recomendada
+
+- `data.csv`: fuente de datos principal
+- `scripts/train.py`: entrenamiento del modelo y registro en MLflow
+- `models/champion.joblib`: artefacto final del modelo
+- `mlruns/`: artefactos producidos por MLflow
+
+
 ## 2. Probar Docker
 
 ```bat

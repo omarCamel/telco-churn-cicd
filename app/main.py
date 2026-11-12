@@ -18,7 +18,9 @@ async def health():
 @app.get("/dataset")
 @app.get("/data")
 async def dataset_summary():
-    preview = dataset.head(5).to_dict(orient="records")
+    preview_df = dataset.head(5).copy()
+    preview_df = preview_df.where(pd.notna(preview_df), None)
+    preview = preview_df.to_dict(orient="records")
     return {
         "rows": int(dataset.shape[0]),
         "columns": int(dataset.shape[1]),
