@@ -6,12 +6,25 @@ from fastapi.responses import HTMLResponse
 from app.schemas import CustomerInput
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATASET_PATH = BASE_DIR / "data.csv"
 model = joblib.load(BASE_DIR / "models" / "champion.joblib")
+dataset = pd.read_csv(DATASET_PATH)
 app = FastAPI(title="Telco Churn API", version="1.0")
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+@app.get("/dataset")
+@app.get("/data")
+async def dataset_summary():
+    preview = dataset.head(5).to_dict(orient="records")
+    return {
+        "rows": int(dataset.shape[0]),
+        "columns": int(dataset.shape[1]),
+        "column_names": list(dataset.columns),
+        "preview": preview,
+    }
 
 @app.get("/", response_class=HTMLResponse)
 async def home():

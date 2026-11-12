@@ -18,3 +18,12 @@ def test_predict():
 def test_invalid_input():
     response = client.post("/predict", json={**SAMPLE, "tenure": -10})
     assert response.status_code == 422
+
+
+def test_dataset_summary():
+    response = client.get("/dataset")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["rows"] > 0
+    assert body["columns"] > 0
+    assert "diagnosis" in body["column_names"]
