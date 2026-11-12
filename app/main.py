@@ -8,7 +8,7 @@ from app.schemas import CustomerInput
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATASET_PATH = BASE_DIR / "data.csv"
 model = joblib.load(BASE_DIR / "models" / "champion.joblib")
-dataset = pd.read_csv(DATASET_PATH)
+dataset = pd.read_csv(DATASET_PATH).dropna(axis=1, how="all")
 app = FastAPI(title="Cancer Diagnosis API", version="1.0")
 
 @app.get("/health")
@@ -18,13 +18,14 @@ async def health():
 @app.get("/dataset")
 @app.get("/data")
 async def dataset_summary():
-    preview_df = dataset.head(5).copy()
+    cleaned = dataset.dropna(axis=1, how="all").copy()
+    preview_df = cleaned.head(5).copy()
     preview_df = preview_df.where(pd.notna(preview_df), None)
     preview = preview_df.to_dict(orient="records")
     return {
-        "rows": int(dataset.shape[0]),
-        "columns": int(dataset.shape[1]),
-        "column_names": list(dataset.columns),
+        "rows": int(cleaned.shape[0]),
+        "columns": int(cleaned.shape[1]),
+        "column_names": list(cleaned.columns),
         "preview": preview,
     }
 
@@ -40,6 +41,7 @@ async def predict(customer: CustomerInput):
     risk = "Bajo" if probability < 0.30 else "Medio" if probability < 0.70 else "Alto"
     return {
         "prediction": prediction,
+        "churn_probability": probability,
         "malignancy_probability": probability,
         "risk_level": risk,
         "message": "Paciente con riesgo de malignidad" if prediction else "Paciente con bajo riesgo de malignidad"
