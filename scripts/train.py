@@ -126,7 +126,7 @@ def train_and_log_model(model_name: str, model, X_train, X_test, y_train, y_test
 
 def main():
     mlflow.set_tracking_uri(TRACKING_URI)
-    mlflow.set_experiment("Telco_Churn")
+    mlflow.set_experiment("Cancer_Diagnosis")
 
     df = pd.read_csv(DATA_PATH)
     df = clean_dataset(df)

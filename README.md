@@ -1,6 +1,6 @@
 # Práctica 8 — CI/CD con GitHub Actions
 
-Proyecto ejecutable para Windows + Visual Studio Code. El modelo incluido fue entrenado con **datos sintéticos**: sirve para aprender el flujo técnico, no para decisiones reales sobre clientes.
+Proyecto ejecutable para Windows + Visual Studio Code. El modelo incluido fue entrenado con un dataset de **diagnóstico de cáncer de mama**. La práctica está enfocada en el flujo técnico de MLflow, validación y entrega de un modelo, no en decisiones clínicas reales.
 
 ## 1. Ejecutar localmente (CMD de VS Code)
 
@@ -16,12 +16,20 @@ Abrir `http://127.0.0.1:8000/`, `/docs` y `/health`.
 
 ## 1.1. Entrenar y registrar el modelo con MLflow
 
+El comando de `curl` del wizard es opcional; para arrancar localmente tu servidor de trazas basta con:
+
 ```bat
-python scripts/train.py
-mlflow ui
+python -m pip install mlflow
+mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlartifacts --host 127.0.0.1 --port 5000
 ```
 
-Luego abrir `http://127.0.0.1:5000` para visualizar experimentos, parámetros y métricas.
+Luego, en otra terminal:
+
+```bat
+python scripts/train.py
+```
+
+Y abrir `http://127.0.0.1:5000` para visualizar experimentos, parámetros y métricas. El experimento principal queda en `Cancer_Diagnosis` y el modelo registrado se llamará `CancerDiagnosisClassifier`.
 
 ### Estructura recomendada
 

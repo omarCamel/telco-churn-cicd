@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATASET_PATH = BASE_DIR / "data.csv"
 model = joblib.load(BASE_DIR / "models" / "champion.joblib")
 dataset = pd.read_csv(DATASET_PATH)
-app = FastAPI(title="Telco Churn API", version="1.0")
+app = FastAPI(title="Cancer Diagnosis API", version="1.0")
 
 @app.get("/health")
 async def health():
@@ -40,7 +40,7 @@ async def predict(customer: CustomerInput):
     risk = "Bajo" if probability < 0.30 else "Medio" if probability < 0.70 else "Alto"
     return {
         "prediction": prediction,
-        "churn_probability": probability,
+        "malignancy_probability": probability,
         "risk_level": risk,
-        "message": "Cliente con riesgo de abandono" if prediction else "Cliente con bajo riesgo de abandono"
+        "message": "Paciente con riesgo de malignidad" if prediction else "Paciente con bajo riesgo de malignidad"
     }
