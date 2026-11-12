@@ -1,5 +1,11 @@
 import os
+import sys
 from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 import mlflow
 import mlflow.sklearn
@@ -18,6 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data.csv"
 MODEL_PATH = BASE_DIR / "models" / "champion.joblib"
 TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+SKOPS_TRUSTED_TYPES = [
+    "numpy.dtype",
+    "sklearn.tree._tree.Tree",
+]
 
 
 def clean_dataset(df: pd.DataFrame) -> pd.DataFrame:
@@ -107,7 +117,7 @@ def train_and_log_model(model_name: str, model, X_train, X_test, y_train, y_test
         mlflow.sklearn.log_model(
             model,
             name="model",
-            skops_trusted_types=["numpy.dtype"],
+            skops_trusted_types=SKOPS_TRUSTED_TYPES,
         )
 
         print(f"{model_name} | run_id={run.info.run_id} | metrics={metrics}")
