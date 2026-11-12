@@ -11,14 +11,16 @@ import mlflow.pyfunc
 from mlflow import MlflowClient
 
 TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+EXPERIMENT_NAME = os.getenv("EXPERIMENT_NAME", "Cancer_Diagnosis")
+MODEL_NAME = os.getenv("MODEL_NAME", "CancerDiagnosisClassifier")
 
 
 def main():
     mlflow.set_tracking_uri(TRACKING_URI)
 
-    experiment = mlflow.get_experiment_by_name("Cancer_Diagnosis")
+    experiment = mlflow.get_experiment_by_name(EXPERIMENT_NAME)
     if experiment is None:
-        raise ValueError("No existe el experimento 'Cancer_Diagnosis'. Ejecuta primero python scripts/train.py")
+        raise ValueError(f"No existe el experimento '{EXPERIMENT_NAME}'. Ejecuta primero python scripts/train.py")
 
     client = MlflowClient(tracking_uri=TRACKING_URI)
     runs = client.search_runs(
@@ -34,7 +36,7 @@ def main():
     run_id = winner.info.run_id
     model_uri = f"runs:/{run_id}/model"
 
-    registered_name = "CancerDiagnosisClassifier"
+    registered_name = MODEL_NAME
     result = mlflow.register_model(model_uri=model_uri, name=registered_name)
     version = result.version
     print(f"Modelo registrado: {registered_name} v{version}")

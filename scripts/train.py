@@ -24,6 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data.csv"
 MODEL_PATH = BASE_DIR / "models" / "champion.joblib"
 TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+EXPERIMENT_NAME = os.getenv("EXPERIMENT_NAME", "Cancer_Diagnosis")
+MODEL_NAME = os.getenv("MODEL_NAME", "CancerDiagnosisClassifier")
 SKOPS_TRUSTED_TYPES = [
     "numpy.dtype",
     "sklearn.tree._tree.Tree",
@@ -101,6 +103,7 @@ def train_and_log_model(model_name: str, model, X_train, X_test, y_train, y_test
             "random_state": 42,
             "stratify": True,
             "target": "diagnosis",
+            "experiment_name": EXPERIMENT_NAME,
         })
 
         if model_name == "LogisticRegression":
@@ -126,7 +129,7 @@ def train_and_log_model(model_name: str, model, X_train, X_test, y_train, y_test
 
 def main():
     mlflow.set_tracking_uri(TRACKING_URI)
-    mlflow.set_experiment("Cancer_Diagnosis")
+    mlflow.set_experiment(EXPERIMENT_NAME)
 
     df = pd.read_csv(DATA_PATH)
     df = clean_dataset(df)

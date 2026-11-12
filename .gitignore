@@ -1,5 +1,11 @@
 .venv/
 __pycache__/
-.pytest_cache/
 *.pyc
+*.pyo
+.pytest_cache/
+mlruns/
+mlartifacts/
+mlflow.db
+*.joblib
 .env
+.env.*
