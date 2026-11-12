@@ -1,22 +1,31 @@
+import pandas as pd
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
-SAMPLE = {
-    "tenure": 5, "MonthlyCharges": 85.5, "TotalCharges": 427.5,
-    "Contract": "Month-to-month", "InternetService": "Fiber optic"
-}
+SAMPLE = (
+    pd.read_csv("data.csv")
+    .dropna(axis=1, how="all")
+    .drop(columns=["id", "diagnosis"])
+    .iloc[0]
+    .to_dict()
+)
+
 
 def test_predict():
     response = client.post("/predict", json=SAMPLE)
     assert response.status_code == 200
     body = response.json()
     assert body["prediction"] in (0, 1)
-    assert 0 <= body["churn_probability"] <= 1
+    assert 0 <= body["diagnosis_probability"] <= 1
     assert body["risk_level"] in ("Bajo", "Medio", "Alto")
+    assert any(keyword in body["message"].lower() for keyword in ("benigno", "maligno", "diagnóstico"))
+
 
 def test_invalid_input():
-    response = client.post("/predict", json={**SAMPLE, "tenure": -10})
+    invalid = SAMPLE.copy()
+    invalid["radius_mean"] = -1
+    response = client.post("/predict", json=invalid)
     assert response.status_code == 422
 
 

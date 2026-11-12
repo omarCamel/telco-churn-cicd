@@ -11,9 +11,11 @@ model = joblib.load(BASE_DIR / "models" / "champion.joblib")
 dataset = pd.read_csv(DATASET_PATH).dropna(axis=1, how="all")
 app = FastAPI(title="Cancer Diagnosis API", version="1.0")
 
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
 
 @app.get("/dataset")
 @app.get("/data")
@@ -29,20 +31,22 @@ async def dataset_summary():
         "preview": preview,
     }
 
+
 @app.get("/", response_class=HTMLResponse)
 async def home():
     return (BASE_DIR / "templates" / "index.html").read_text(encoding="utf-8")
 
+
 @app.post("/predict")
 async def predict(customer: CustomerInput):
-    frame = pd.DataFrame([customer.model_dump()])
+    frame = pd.DataFrame([customer.model_dump(by_alias=True)])
     prediction = int(model.predict(frame)[0])
     probability = float(model.predict_proba(frame)[0, 1])
     risk = "Bajo" if probability < 0.30 else "Medio" if probability < 0.70 else "Alto"
+    diagnosis_label = "Maligno" if prediction else "Benigno"
     return {
         "prediction": prediction,
-        "churn_probability": probability,
-        "malignancy_probability": probability,
+        "diagnosis_probability": probability,
         "risk_level": risk,
-        "message": "Paciente con riesgo de malignidad" if prediction else "Paciente con bajo riesgo de malignidad"
+        "message": f"Diagnóstico {diagnosis_label}: probabilidad estimada de malignidad {probability:.3f}",
     }
