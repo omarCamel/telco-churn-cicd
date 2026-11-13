@@ -1,0 +1,25 @@
+artifact_path: file:C:/Users/Usuario.DESKTOP-06JOCE1/telco-churn-cicd/mlartifacts/2/models/m-5e1de322007c438191bbde77be019a80/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.14.8
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.8.0
+    skops_trusted_types:
+    - numpy.dtype
+    - sklearn.tree._tree.Tree
+mlflow_version: 3.18.0
+model_id: m-5e1de322007c438191bbde77be019a80
+model_size_bytes: 258845
+model_uuid: m-5e1de322007c438191bbde77be019a80
+prompts: null
+run_id: 0715d2dbe4444f0c890fcf1830ce8be9
+utc_time_created: '2026-11-12 22:08:41.422909'

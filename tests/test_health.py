@@ -11,4 +11,4 @@ def test_health():
 def test_home():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Telco Churn Predictor" in response.text
+    assert "Diagnóstico de cáncer" in response.text or "Cancer Diagnosis" in response.text

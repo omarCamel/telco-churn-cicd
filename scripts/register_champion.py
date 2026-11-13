@@ -1,0 +1,57 @@
+import os
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
+import mlflow
+import mlflow.pyfunc
+from mlflow import MlflowClient
+
+TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+EXPERIMENT_NAME = os.getenv("EXPERIMENT_NAME", "Cancer_Diagnosis")
+MODEL_NAME = os.getenv("MODEL_NAME", "CancerDiagnosisClassifier")
+
+
+def main():
+    mlflow.set_tracking_uri(TRACKING_URI)
+
+    experiment = mlflow.get_experiment_by_name(EXPERIMENT_NAME)
+    if experiment is None:
+        raise ValueError(f"No existe el experimento '{EXPERIMENT_NAME}'. Ejecuta primero python scripts/train.py")
+
+    client = MlflowClient(tracking_uri=TRACKING_URI)
+    runs = client.search_runs(
+        experiment_ids=[experiment.experiment_id],
+        order_by=["metrics.roc_auc DESC"],
+        max_results=1,
+    )
+
+    if not runs:
+        raise ValueError("No se encontraron runs para registrar el Champion.")
+
+    winner = runs[0]
+    run_id = winner.info.run_id
+    model_uri = f"runs:/{run_id}/model"
+
+    registered_name = MODEL_NAME
+    result = mlflow.register_model(model_uri=model_uri, name=registered_name)
+    version = result.version
+    print(f"Modelo registrado: {registered_name} v{version}")
+
+    client.set_registered_model_alias(
+        name=registered_name,
+        alias="champion",
+        version=version,
+    )
+    print(f"Alias 'champion' asignado a {registered_name} v{version}")
+
+    model = mlflow.pyfunc.load_model(f"models:/{registered_name}@champion")
+    print("Modelo champion cargado correctamente desde MLflow.")
+    return model
+
+
+if __name__ == "__main__":
+    main()

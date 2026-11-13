@@ -1,20 +1,217 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Telco Churn</title>
-<style>body{font-family:system-ui;max-width:600px;margin:40px auto;padding:0 18px}label{display:block;margin:14px 0}input,select,button{padding:8px;width:100%;box-sizing:border-box}button{background:#175cd3;color:white;border:0;border-radius:6px;cursor:pointer}pre{white-space:pre-wrap;background:#f2f4f7;padding:16px}</style></head>
-<body><h1>Telco Churn Predictor</h1><p>Demostración con datos sintéticos; no utilizar para decisiones reales.</p>
-<form id="f">
-<label>Meses como cliente <input name="tenure" type="number" min="0" max="100" value="5" required></label>
-<label>Cargo mensual <input name="MonthlyCharges" type="number" min="0" step="0.01" value="85.5" required></label>
-<label>Cargo acumulado <input name="TotalCharges" type="number" min="0" step="0.01" value="427.5" required></label>
-<label>Contrato <select name="Contract"><option>Month-to-month</option><option>One year</option><option>Two year</option></select></label>
-<label>Internet <select name="InternetService"><option>Fiber optic</option><option>DSL</option><option>No</option></select></label>
-<button>Predecir</button></form><h2>Resultado</h2><pre id="out">Sin predicción</pre>
-<script>
-document.querySelector('#f').addEventListener('submit',async e=>{
- e.preventDefault(); const o=Object.fromEntries(new FormData(e.target));
- for(const k of ['tenure','MonthlyCharges','TotalCharges']) o[k]=Number(o[k]);
- const r=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)});
- document.querySelector('#out').textContent=JSON.stringify(await r.json(),null,2);
-});
-</script></body></html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modelo campeón - Diagnóstico de cáncer</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --primary: #175cd3;
+      --primary-dark: #123e9d;
+      --text: #1f2937;
+      --muted: #5f6f86;
+      --border: #dfe7f5;
+      --success: #0f766e;
+      --warning: #d97706;
+      --danger: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eef5ff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px 40px;
+    }
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 3vw, 2.6rem);
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .badge {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e0ebff;
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      background: #fff;
+    }
+    input:focus {
+      outline: 2px solid rgba(23, 92, 211, 0.15);
+      border-color: var(--primary);
+    }
+    button {
+      margin-top: 22px;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 16px;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button:hover { background: var(--primary-dark); }
+    .result {
+      margin-top: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+    .result h2 {
+      margin: 0 0 12px;
+    }
+    pre {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+    .note {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <div class="badge">Modelo campeón</div>
+      <h1>Diagnóstico de cáncer con aprendizaje automático</h1>
+      <p>
+        Esta interfaz usa el modelo campeón entrenado para estimar la probabilidad de malignidad
+        a partir de las características del tumor. La predicción es orientativa y solo tiene
+        propósito educativo dentro del flujo de CI/CD y MLOps del proyecto.
+      </p>
+    </div>
+
+    <form id="f">
+      <div class="grid">
+        <div class="field"><label>radius_mean</label><input name="radius_mean" type="number" step="0.01" value="17.99" required></div>
+        <div class="field"><label>texture_mean</label><input name="texture_mean" type="number" step="0.01" value="10.38" required></div>
+        <div class="field"><label>perimeter_mean</label><input name="perimeter_mean" type="number" step="0.01" value="122.8" required></div>
+        <div class="field"><label>area_mean</label><input name="area_mean" type="number" step="0.01" value="1001" required></div>
+        <div class="field"><label>smoothness_mean</label><input name="smoothness_mean" type="number" step="0.01" value="0.1184" required></div>
+        <div class="field"><label>compactness_mean</label><input name="compactness_mean" type="number" step="0.01" value="0.2776" required></div>
+        <div class="field"><label>concavity_mean</label><input name="concavity_mean" type="number" step="0.01" value="0.3001" required></div>
+        <div class="field"><label>concave points_mean</label><input name="concave points_mean" type="number" step="0.01" value="0.1471" required></div>
+        <div class="field"><label>symmetry_mean</label><input name="symmetry_mean" type="number" step="0.01" value="0.2419" required></div>
+        <div class="field"><label>fractal_dimension_mean</label><input name="fractal_dimension_mean" type="number" step="0.01" value="0.07871" required></div>
+
+        <div class="field"><label>radius_se</label><input name="radius_se" type="number" step="0.01" value="1.095" required></div>
+        <div class="field"><label>texture_se</label><input name="texture_se" type="number" step="0.01" value="0.9053" required></div>
+        <div class="field"><label>perimeter_se</label><input name="perimeter_se" type="number" step="0.01" value="8.589" required></div>
+        <div class="field"><label>area_se</label><input name="area_se" type="number" step="0.01" value="153.4" required></div>
+        <div class="field"><label>smoothness_se</label><input name="smoothness_se" type="number" step="0.01" value="0.006399" required></div>
+        <div class="field"><label>compactness_se</label><input name="compactness_se" type="number" step="0.01" value="0.04904" required></div>
+        <div class="field"><label>concavity_se</label><input name="concavity_se" type="number" step="0.01" value="0.05373" required></div>
+        <div class="field"><label>concave points_se</label><input name="concave points_se" type="number" step="0.01" value="0.01587" required></div>
+        <div class="field"><label>symmetry_se</label><input name="symmetry_se" type="number" step="0.01" value="0.03003" required></div>
+        <div class="field"><label>fractal_dimension_se</label><input name="fractal_dimension_se" type="number" step="0.01" value="0.006193" required></div>
+
+        <div class="field"><label>radius_worst</label><input name="radius_worst" type="number" step="0.01" value="25.38" required></div>
+        <div class="field"><label>texture_worst</label><input name="texture_worst" type="number" step="0.01" value="17.33" required></div>
+        <div class="field"><label>perimeter_worst</label><input name="perimeter_worst" type="number" step="0.01" value="184.6" required></div>
+        <div class="field"><label>area_worst</label><input name="area_worst" type="number" step="0.01" value="2019" required></div>
+        <div class="field"><label>smoothness_worst</label><input name="smoothness_worst" type="number" step="0.01" value="0.1622" required></div>
+        <div class="field"><label>compactness_worst</label><input name="compactness_worst" type="number" step="0.01" value="0.6656" required></div>
+        <div class="field"><label>concavity_worst</label><input name="concavity_worst" type="number" step="0.01" value="0.7119" required></div>
+        <div class="field"><label>concave points_worst</label><input name="concave points_worst" type="number" step="0.01" value="0.2654" required></div>
+        <div class="field"><label>symmetry_worst</label><input name="symmetry_worst" type="number" step="0.01" value="0.4601" required></div>
+        <div class="field"><label>fractal_dimension_worst</label><input name="fractal_dimension_worst" type="number" step="0.01" value="0.1189" required></div>
+      </div>
+
+      <button type="submit">Predecir diagnóstico</button>
+    </form>
+
+    <div class="result">
+      <h2>Resultado</h2>
+      <pre id="out">Sin predicción</pre>
+      <div class="note">El valor devuelto representa la probabilidad estimada de malignidad del modelo campeón.</div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelector('#f').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const payload = {};
+      for (const [key, value] of form.entries()) {
+        payload[key] = Number(value);
+      }
+
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      document.querySelector('#out').textContent = JSON.stringify(result, null, 2);
+    });
+  </script>
+</body>
+</html>
