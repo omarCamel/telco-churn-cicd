@@ -4,9 +4,11 @@ Proyecto ejecutable para Windows + Visual Studio Code. El modelo incluido fue en
 
 ## 1. Ejecutar localmente (CMD de VS Code)
 
+El modelo incluido requiere scikit-learn 1.8.0 y Python 3.11. Cree el entorno con Python 3.11 para evitar incompatibilidades al cargarlo.
+
 ```bat
-python -m venv .venv
-.venv\Scripts\activate.bat
+py -3.11 -m venv .venv311
+.venv311\Scripts\activate.bat
 python -m pip install -r requirements.txt
 python -m pytest -v
 python -m uvicorn app.main:app --reload
