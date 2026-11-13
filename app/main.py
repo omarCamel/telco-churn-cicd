@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATASET_PATH = BASE_DIR / "data.csv"
 model = joblib.load(BASE_DIR / "models" / "champion.joblib")
 dataset = pd.read_csv(DATASET_PATH).dropna(axis=1, how="all")
-app = FastAPI(title="Cancer Diagnosis API", version="1.0")
+app = FastAPI(title="API de diagnóstico de cáncer", version="1.0")
 
 
 @app.get("/health")
